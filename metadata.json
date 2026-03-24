@@ -1,0 +1,7 @@
+{
+  "name": "VoiceAuth Platform",
+  "description": "A centralized Voice Recognition as a Service (VRaaS) platform for developers to integrate voice authentication.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
