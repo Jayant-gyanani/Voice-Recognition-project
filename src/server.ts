@@ -9,6 +9,7 @@ import {join} from 'node:path';
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import fs from 'node:fs';
+import { exec } from 'child_process';
 
 // Allow the dynamic hostname for SSR
 process.env['NG_ALLOWED_HOSTS'] = '*.run.app,localhost,127.0.0.1';
@@ -462,29 +463,37 @@ app.post('/api/verify/analyze', (req, res) => {
 
   const users = usersDB;
   
-  // 20% chance to not recognize
-  if (users.length === 0 || Math.random() < 0.2) {
+  // recognition of voice threw the pythong file
+  
+  const testFilePath = join(testUploadsDir, 'test.wav');
+  return exec(`python voice_engine.py ${testFilePath}`, (error, stdout, stderr) => {
+  if (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Voice processing failed' });
+    return;
+  }
+
+  const output = stdout.trim();
+
+  if (!output || output.startsWith("None")) {
     res.status(404).json({ message: 'User not recognised' });
     return;
   }
 
-  // Pick a random user to simulate recognition
-  const recognizedUser = users[Math.floor(Math.random() * users.length)];
+  const [userId, confidence] = output.split("|");
+
+  const recognizedUser = usersDB.find(u => u.id === userId);
+
+  if (!recognizedUser) {
+    res.status(404).json({ message: 'User not recognised' });
+    return;
+  }
+
   const isAllowed = project.allowedUsers.includes(recognizedUser.id);
 
   if (!isAllowed) {
     res.status(403).json({ message: `${recognizedUser.name} access is not allowed` });
     return;
-  }
-
-  // Add to connected apps if not already there
-  if (!connectedAppsDB.find(a => a.id === project.id)) {
-    connectedAppsDB.push({
-      id: project.id,
-      name: project.name,
-      connectedAt: new Date()
-    });
-    project.usersCount++;
   }
 
   res.json({
@@ -496,11 +505,12 @@ app.post('/api/verify/analyze', (req, res) => {
       image: recognizedUser.photo,
       gender: recognizedUser.gender
     },
-    message: `User recognised as: ${recognizedUser.name}`
+    message: `User recognised as: ${recognizedUser.name}`,
+    confidence: confidence
   });
 
-  // Invalidate session after use
   sessionsDB.delete(sessionId);
+});
 });
 
 // Admin Login

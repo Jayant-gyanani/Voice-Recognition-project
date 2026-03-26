@@ -18,4 +18,4 @@ again reepeting
 ==================================================================================
 START WRITING FROM HERE
 ==================================================================================
-Jayant : sara kuch upload kar diya h run karne k liye cmd pr npm run dev likh lena ab bas voice recognition modal add karna h
+Jayant : sara kuch upload kar diya h run karne k liye cmd pr ==>{ npm run dev }<== likh lena ab bas voice recognition modal add karna h
