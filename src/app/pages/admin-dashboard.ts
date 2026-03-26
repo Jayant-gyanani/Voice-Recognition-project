@@ -4,22 +4,24 @@ import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { DatePipe, JsonPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ThemeToggleComponent } from '../components/theme-toggle';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [MatIconModule, DatePipe, ReactiveFormsModule, JsonPipe],
+  imports: [MatIconModule, DatePipe, ReactiveFormsModule, JsonPipe, ThemeToggleComponent],
   template: `
-    <div class="min-h-screen bg-zinc-50 font-sans">
-      <header class="bg-zinc-900 text-white border-b border-zinc-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
+      <header class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border-b border-zinc-200 dark:border-zinc-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300">
         <div class="flex items-center gap-2">
-          <mat-icon class="text-indigo-400">admin_panel_settings</mat-icon>
+          <mat-icon class="text-indigo-600 dark:text-purple-400">admin_panel_settings</mat-icon>
           <span class="text-xl font-bold tracking-tight">Admin Portal</span>
         </div>
         <nav class="flex items-center gap-6">
-          <button (click)="activeTab.set('users')" [class.text-indigo-400]="activeTab() === 'users'" [class.border-indigo-400]="activeTab() === 'users'" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors border-b-2 border-transparent pb-1">Users List</button>
-          <button (click)="activeTab.set('voice')" [class.text-indigo-400]="activeTab() === 'voice'" [class.border-indigo-400]="activeTab() === 'voice'" class="text-sm font-medium text-zinc-400 hover:text-white transition-colors border-b-2 border-transparent pb-1">Voice Detection</button>
-          <button (click)="logout()" class="text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-1 transition-colors ml-4">
+          <app-theme-toggle></app-theme-toggle>
+          <button (click)="activeTab.set('users')" [class.text-indigo-600]="activeTab() === 'users'" [class.dark:text-purple-400]="activeTab() === 'users'" [class.border-indigo-600]="activeTab() === 'users'" [class.dark:border-purple-400]="activeTab() === 'users'" class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors border-b-2 border-transparent pb-1">Users List</button>
+          <button (click)="activeTab.set('voice')" [class.text-indigo-600]="activeTab() === 'voice'" [class.dark:text-purple-400]="activeTab() === 'voice'" [class.border-indigo-600]="activeTab() === 'voice'" [class.dark:border-purple-400]="activeTab() === 'voice'" class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors border-b-2 border-transparent pb-1">Voice Detection</button>
+          <button (click)="logout()" class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors ml-4">
             <mat-icon class="text-sm">logout</mat-icon> Logout
           </button>
         </nav>
@@ -29,20 +31,20 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
         @if (activeTab() === 'users') {
           <div class="mb-8 flex items-center justify-between">
             <div>
-              <h1 class="text-3xl font-bold text-zinc-900">All Users</h1>
-              <p class="text-zinc-500">Manage all registered users on the platform.</p>
+              <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">All Users</h1>
+              <p class="text-zinc-500 dark:text-zinc-400">Manage all registered users on the platform.</p>
             </div>
-            <div class="bg-white px-4 py-2 rounded-xl border border-zinc-200 shadow-sm flex items-center gap-2">
-              <mat-icon class="text-zinc-400">people</mat-icon>
-              <span class="font-bold text-zinc-900">{{ users().length }}</span>
-              <span class="text-zinc-500 text-sm">Total Users</span>
+            <div class="bg-white dark:bg-zinc-900 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center gap-2 transition-colors duration-300">
+              <mat-icon class="text-zinc-400 dark:text-zinc-500">people</mat-icon>
+              <span class="font-bold text-zinc-900 dark:text-zinc-100">{{ users().length }}</span>
+              <span class="text-zinc-500 dark:text-zinc-400 text-sm">Total Users</span>
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden transition-colors duration-300">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-zinc-50 border-b border-zinc-200 text-sm text-zinc-500 uppercase tracking-wider">
+                <tr class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-sm text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   <th class="p-4 font-medium">User</th>
                   <th class="p-4 font-medium">Unique ID</th>
                   <th class="p-4 font-medium">Email</th>
@@ -50,36 +52,36 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
                   <th class="p-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-zinc-100">
+              <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
                 @for (user of users(); track user.id) {
-                  <tr class="hover:bg-zinc-50 transition-colors">
+                  <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                     <td class="p-4">
                       <div class="flex items-center gap-3">
                         @if (user.photo) {
-                          <img [src]="user.photo" alt="User Photo" class="w-10 h-10 rounded-full object-cover border border-zinc-200">
+                          <img [src]="user.photo" alt="User Photo" class="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700">
                         } @else {
-                          <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 font-bold">
+                          <div class="w-10 h-10 bg-indigo-50 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-purple-400 font-bold">
                             {{ user.name.charAt(0) }}
                           </div>
                         }
                         <div>
-                          <p class="font-bold text-zinc-900">{{ user.name }}</p>
-                          <p class="text-xs text-zinc-500 capitalize">{{ user.gender }} • {{ user.age || 'N/A' }} yrs</p>
+                          <p class="font-bold text-zinc-900 dark:text-zinc-100">{{ user.name }}</p>
+                          <p class="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{{ user.gender }} • {{ user.age || 'N/A' }} yrs</p>
                         </div>
                       </div>
                     </td>
                     <td class="p-4">
-                      <code class="text-xs font-mono text-zinc-600 bg-zinc-100 px-2 py-1 rounded border border-zinc-200">{{ user.id }}</code>
+                      <code class="text-xs font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded border border-zinc-200 dark:border-zinc-700">{{ user.id }}</code>
                     </td>
-                    <td class="p-4 text-sm text-zinc-600">{{ user.email }}</td>
-                    <td class="p-4 text-sm text-zinc-500">{{ user.createdAt | date:'mediumDate' }}</td>
+                    <td class="p-4 text-sm text-zinc-600 dark:text-zinc-400">{{ user.email }}</td>
+                    <td class="p-4 text-sm text-zinc-500 dark:text-zinc-500">{{ user.createdAt | date:'mediumDate' }}</td>
                     <td class="p-4 text-right relative">
-                      <button (click)="$event.stopPropagation(); toggleMenu(user.id)" class="text-zinc-400 hover:text-zinc-900 transition-colors p-1 rounded-full hover:bg-zinc-100">
+                      <button (click)="$event.stopPropagation(); toggleMenu(user.id)" class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
                         <mat-icon>more_vert</mat-icon>
                       </button>
                       @if (activeMenu() === user.id) {
-                        <div class="absolute right-8 top-10 w-48 bg-white rounded-xl shadow-lg border border-zinc-200 py-1 z-20 text-left">
-                          <button (click)="$event.stopPropagation(); deleteUser(user.id)" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                        <div class="absolute right-8 top-10 w-48 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800 py-1 z-20 text-left transition-colors duration-300">
+                          <button (click)="$event.stopPropagation(); deleteUser(user.id)" class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2">
                             <mat-icon class="text-sm">delete</mat-icon> Delete Account
                           </button>
                         </div>
@@ -89,7 +91,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
                 }
                 @if (users().length === 0) {
                   <tr>
-                    <td colspan="5" class="p-8 text-center text-zinc-500">No users found.</td>
+                    <td colspan="5" class="p-8 text-center text-zinc-500 dark:text-zinc-400">No users found.</td>
                   </tr>
                 }
               </tbody>
@@ -99,18 +101,18 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
         @if (activeTab() === 'voice') {
           <div class="mb-8">
-            <h1 class="text-3xl font-bold text-zinc-900">Voice Detection Test</h1>
-            <p class="text-zinc-500">Record a voice sample to search the entire database and recognize the user.</p>
+            <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Voice Detection Test</h1>
+            <p class="text-zinc-500 dark:text-zinc-400">Record a voice sample to search the entire database and recognize the user.</p>
           </div>
 
           <div class="grid md:grid-cols-2 gap-8">
             <div class="space-y-6">
-              <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-                <h2 class="text-lg font-bold text-zinc-900 mb-4">Voice Input</h2>
+              <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 transition-colors duration-300">
+                <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-4">Voice Input</h2>
 
-                <div class="bg-zinc-50 rounded-xl p-6 border border-zinc-200 text-center">
-                  <p class="text-sm text-zinc-600 mb-4">Please read the following text clearly:</p>
-                  <p class="text-lg font-medium text-zinc-900 italic mb-8">"My voice is my password, verify me."</p>
+                <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-6 border border-zinc-200 dark:border-zinc-700 text-center transition-colors duration-300">
+                  <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">Please read the following text clearly:</p>
+                  <p class="text-lg font-medium text-zinc-900 dark:text-zinc-100 italic mb-8">"My voice is my password, verify me."</p>
                   
                   <button 
                     (click)="toggleRecording()" 
@@ -119,10 +121,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
                     [class.hover:bg-red-600]="isRecording()"
                     [class.bg-indigo-600]="!isRecording()"
                     [class.hover:bg-indigo-700]="!isRecording()"
+                    [class.dark:bg-purple-600]="!isRecording()"
+                    [class.dark:hover:bg-purple-700]="!isRecording()"
                     class="w-24 h-24 rounded-full text-white shadow-lg transition-all flex items-center justify-center mx-auto disabled:opacity-50 disabled:cursor-not-allowed">
                     <mat-icon class="text-4xl">{{ isRecording() ? 'stop' : 'mic' }}</mat-icon>
                   </button>
-                  <p class="text-sm font-medium mt-4" [class.text-red-500]="isRecording()" [class.text-zinc-500]="!isRecording()">
+                  <p class="text-sm font-medium mt-4" [class.text-red-500]="isRecording()" [class.dark:text-red-400]="isRecording()" [class.text-zinc-500]="!isRecording()" [class.dark:text-zinc-400]="!isRecording()">
                     {{ isRecording() ? 'Recording... ' + recordingTimeLeft() + 's left' : 'Click to record' }}
                   </p>
                 </div>
@@ -130,23 +134,29 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
             </div>
 
             <div class="space-y-6">
-              <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 h-full flex flex-col">
-                <h2 class="text-lg font-bold text-zinc-900 mb-4">Detection Result</h2>
+              <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 h-full flex flex-col transition-colors duration-300">
+                <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-4">Detection Result</h2>
                 
                 @if (processing()) {
-                  <div class="flex-1 flex flex-col items-center justify-center text-zinc-500">
-                    <mat-icon class="animate-spin text-indigo-600 text-4xl mb-4">autorenew</mat-icon>
+                  <div class="flex-1 flex flex-col items-center justify-center text-zinc-500 dark:text-zinc-400">
+                    <mat-icon class="animate-spin text-indigo-600 dark:text-purple-500 text-4xl mb-4">autorenew</mat-icon>
                     <p>Analyzing voice sample...</p>
                   </div>
                 } @else if (detectResult()) {
                   <div class="flex-1">
                     <div class="mb-6 p-4 rounded-xl border" 
                          [class.bg-emerald-50]="detectResult()?.status === 'success'"
+                         [class.dark:bg-emerald-900/20]="detectResult()?.status === 'success'"
                          [class.border-emerald-200]="detectResult()?.status === 'success'"
+                         [class.dark:border-emerald-800/30]="detectResult()?.status === 'success'"
                          [class.text-emerald-800]="detectResult()?.status === 'success'"
+                         [class.dark:text-emerald-400]="detectResult()?.status === 'success'"
                          [class.bg-red-50]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'"
+                         [class.dark:bg-red-900/20]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'"
                          [class.border-red-200]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'"
-                         [class.text-red-800]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'">
+                         [class.dark:border-red-800/30]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'"
+                         [class.text-red-800]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'"
+                         [class.dark:text-red-400]="detectResult()?.status === 'not_allowed' || detectResult()?.status === 'not_registered'">
                       <div class="flex items-center gap-2 mb-1">
                         <mat-icon>{{ detectResult()?.status === 'success' ? 'check_circle' : 'error' }}</mat-icon>
                         <span class="font-bold capitalize">{{ detectResult()?.status.replace('_', ' ') }}</span>
@@ -154,13 +164,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
                       <p class="text-sm">{{ detectResult()?.message }}</p>
                     </div>
 
-                    <h3 class="text-sm font-bold text-zinc-700 mb-2 uppercase tracking-wider">API Response Data</h3>
-                    <div class="bg-zinc-900 rounded-xl p-4 overflow-auto max-h-64">
+                    <h3 class="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2 uppercase tracking-wider">API Response Data</h3>
+                    <div class="bg-zinc-900 dark:bg-zinc-950 rounded-xl p-4 overflow-auto max-h-64 border border-zinc-800 dark:border-zinc-800">
                       <pre class="text-xs font-mono text-emerald-400">{{ detectResult()?.data | json }}</pre>
                     </div>
                   </div>
                 } @else {
-                  <div class="flex-1 flex flex-col items-center justify-center text-zinc-400 border-2 border-dashed border-zinc-200 rounded-xl">
+                  <div class="flex-1 flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl">
                     <mat-icon class="text-4xl mb-2">graphic_eq</mat-icon>
                     <p>Record a voice sample to see results</p>
                   </div>

@@ -20,6 +20,19 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const testUploadsDir = join(uploadsDir, 'test');
+if (!fs.existsSync(testUploadsDir)) {
+  fs.mkdirSync(testUploadsDir, { recursive: true });
+}
+
+function saveTestVoiceSample(base64String: string) {
+  if (base64String) {
+    const base64Data = base64String.replace(/^data:audio\/\w+;base64,/, "");
+    const filePath = join(testUploadsDir, 'test.wav');
+    fs.writeFileSync(filePath, base64Data, 'base64');
+  }
+}
+
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
@@ -108,6 +121,28 @@ app.post('/api/auth/login', (req, res) => {
   if (identifier === 'test' && password === 'test@123') {
     const token = jwt.sign({ id: 'test', role: 'test' }, JWT_SECRET);
     res.json({ token, user: { id: 'test', name: 'Test Account', role: 'test' } });
+    return;
+  }
+  
+  // Check for api test login
+  if (identifier === 'api' && password === '112233') {
+    const sessionId = generateId('SESS_TEST');
+    
+    // Create a mock project to satisfy the verify endpoint
+    let project = projectsDB.find(p => p.id === 'TEST_PROJECT');
+    if (!project) {
+      project = { id: 'TEST_PROJECT', name: 'Test Project', allowedUsers: usersDB.map(u => u.id), usersCount: 0 };
+      projectsDB.push(project);
+    }
+    
+    sessionsDB.set(sessionId, {
+      projectId: project.id,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 60 * 60 * 1000 // 1 hour
+    });
+    
+    const token = jwt.sign({ id: 'api', role: 'api_test' }, JWT_SECRET);
+    res.json({ token, user: { id: 'api', name: 'API Tester', role: 'api_test', sessionId } });
     return;
   }
   
@@ -410,6 +445,10 @@ app.post('/api/verify/analyze', (req, res) => {
   const { sessionId, voiceSample } = req.body;
   const session = sessionsDB.get(sessionId);
   
+  if (voiceSample) {
+    saveTestVoiceSample(voiceSample);
+  }
+  
   if (!session || Date.now() > session.expiresAt) {
     res.status(400).json({ message: 'Invalid or expired session' });
     return;
@@ -425,7 +464,7 @@ app.post('/api/verify/analyze', (req, res) => {
   
   // 20% chance to not recognize
   if (users.length === 0 || Math.random() < 0.2) {
-    res.status(404).json({ message: 'User not registered' });
+    res.status(404).json({ message: 'User not recognised' });
     return;
   }
 
@@ -448,12 +487,15 @@ app.post('/api/verify/analyze', (req, res) => {
     project.usersCount++;
   }
 
-  const { password, ...userInfo } = recognizedUser;
-
   res.json({
     success: true,
-    userId: recognizedUser.id,
-    user: userInfo,
+    user: {
+      uniqueId: recognizedUser.id,
+      name: recognizedUser.name,
+      DOB: recognizedUser.dob,
+      image: recognizedUser.photo,
+      gender: recognizedUser.gender
+    },
     message: `User recognised as: ${recognizedUser.name}`
   });
 
@@ -516,6 +558,10 @@ app.post('/api/admin/voice-detect', authenticateToken, (req, res) => {
   
   const { voiceSample } = req.body;
   
+  if (voiceSample) {
+    saveTestVoiceSample(voiceSample);
+  }
+  
   const users = usersDB;
   
   // 20% chance to not recognize
@@ -544,6 +590,10 @@ app.post('/api/test/voice-detect', authenticateToken, (req, res) => {
   }
   
   const { voiceSample } = req.body;
+  
+  if (voiceSample) {
+    saveTestVoiceSample(voiceSample);
+  }
   
   const users = usersDB;
   

@@ -9,34 +9,34 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, MatIconModule],
   template: `
-    <div class="min-h-screen bg-zinc-50 flex items-center justify-center p-4 font-sans relative">
-      <a routerLink="/" class="absolute top-6 left-6 p-2 rounded-full bg-white shadow-sm border border-zinc-200 hover:bg-zinc-50 transition-colors flex items-center justify-center text-zinc-600">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-4 font-sans relative transition-colors duration-300">
+      <a routerLink="/" class="absolute top-6 left-6 p-2 rounded-full bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center text-zinc-600 dark:text-zinc-400">
         <mat-icon>arrow_back</mat-icon>
       </a>
-      <div class="bg-white p-8 rounded-2xl shadow-sm border border-zinc-200 w-full max-w-md">
+      <div class="bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 w-full max-w-md transition-colors duration-300">
         <div class="flex items-center justify-center gap-2 mb-8">
-          <mat-icon class="text-indigo-600">record_voice_over</mat-icon>
-          <span class="text-xl font-bold tracking-tight">VoiceAuth</span>
+          <mat-icon class="text-indigo-600 dark:text-purple-500">record_voice_over</mat-icon>
+          <span class="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">VoiceAuth</span>
         </div>
         
-        <h2 class="text-2xl font-bold text-center mb-6 text-zinc-900">Welcome back</h2>
+        <h2 class="text-2xl font-bold text-center mb-6 text-zinc-900 dark:text-zinc-100">Welcome back</h2>
         
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
           <div>
-            <label for="identifier" class="block text-sm font-medium text-zinc-700 mb-1">Email, Username, or Unique ID</label>
-            <input id="identifier" type="text" formControlName="identifier" class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Enter your email, username, or ID">
+            <label for="identifier" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email, Username, or Unique ID</label>
+            <input id="identifier" type="text" formControlName="identifier" class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:focus:ring-purple-500 focus:border-indigo-500 dark:focus:border-purple-500 outline-none transition-all" placeholder="Enter your email, username, or ID">
           </div>
           
           <div>
-            <label for="password" class="block text-sm font-medium text-zinc-700 mb-1">Password</label>
-            <input id="password" type="password" formControlName="password" class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="••••••••">
+            <label for="password" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password</label>
+            <input id="password" type="password" formControlName="password" class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:focus:ring-purple-500 focus:border-indigo-500 dark:focus:border-purple-500 outline-none transition-all" placeholder="••••••••">
           </div>
           
           @if (error()) {
-            <div class="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">{{ error() }}</div>
+            <div class="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">{{ error() }}</div>
           }
           
-          <button type="submit" [disabled]="loginForm.invalid || loading()" class="w-full bg-zinc-900 text-white py-2.5 rounded-xl font-medium hover:bg-zinc-800 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
+          <button type="submit" [disabled]="loginForm.invalid || loading()" class="w-full bg-zinc-900 dark:bg-purple-600 text-white py-2.5 rounded-xl font-medium hover:bg-zinc-800 dark:hover:bg-purple-700 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
             @if (loading()) {
               <mat-icon class="animate-spin h-5 w-5">autorenew</mat-icon>
             } @else {
@@ -45,8 +45,8 @@ import { MatIconModule } from '@angular/material/icon';
           </button>
         </form>
         
-        <p class="mt-6 text-center text-sm text-zinc-600">
-          Don't have an account? <a routerLink="/signup" class="text-indigo-600 hover:text-indigo-500 font-medium">Sign up</a>
+        <p class="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          Don't have an account? <a routerLink="/signup" class="text-indigo-600 dark:text-purple-400 hover:text-indigo-500 dark:hover:text-purple-300 font-medium">Sign up</a>
         </p>
       </div>
     </div>
@@ -81,6 +81,9 @@ export class LoginComponent {
           localStorage.setItem('testToken', res.token);
           localStorage.setItem('testUser', JSON.stringify(res.user));
           this.router.navigate(['/test-dashboard']);
+        } else if (res.user.role === 'api_test') {
+          // Temporary login for API testing
+          this.router.navigate(['/verify', res.user.sessionId]);
         } else {
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(res.user));
