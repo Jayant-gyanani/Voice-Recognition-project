@@ -6,6 +6,8 @@ import noisereduce as nr
 from resemblyzer import VoiceEncoder
 from scipy.spatial.distance import cosine
 
+print("file ran")
+
 UPLOADS_DIR = "uploads"
 TEST_FILE = sys.argv[1]
 
@@ -89,3 +91,5 @@ def recognize():
         print("None|0")
 
 recognize()
+
+print("file stopped")
