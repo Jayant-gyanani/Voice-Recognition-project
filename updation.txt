@@ -1,0 +1,21 @@
+ok guys yaha per roj thoda thoda kuch na kuc likhna h but yaha se kuch htana nhi
+pahle tumko github se fetch origin krna h than waha se pull karna h 
+uske baad yaha per tum kuch bhi likh do yah per 
+fir yaha save karke github per push kar do
+
+==================================================================================
+again reepeting
+-------------------------------------------------------
+|   1.)open github desktop app                        |
+|   2.)fetch origin                                   |
+|   3.)pull origin                                    |
+|   4.)make some changes                              |
+|   5.)save file                                      |
+|   6.)push orogin                                    |
+|   7.)done                                           |
+-------------------------------------------------------
+
+==================================================================================
+START WRITING FROM HERE
+==================================================================================
+Jayant : sara kuch upload kar diya h run karne k liye cmd pr npm run dev likh lena ab bas voice recognition modal add karna h
