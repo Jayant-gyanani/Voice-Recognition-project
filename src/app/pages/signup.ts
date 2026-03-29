@@ -146,8 +146,8 @@ export class SignupComponent {
   
   sentences = [
     "My voice is my password, and it verifies my identity.",
-    "My spoken words verify my identity, acting as a secure password.",
-    "The voice recognition system verifies my voice to help me log in."
+    "My voice is my password, and it verifies my identity.",
+    "My voice is my password, and it verifies my identity."
   ];
 
   voiceSamples = signal<string[]>(['', '', '']);

@@ -10,6 +10,12 @@ import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import fs from 'node:fs';
 import { exec } from 'child_process';
+import ffmpeg from 'fluent-ffmpeg';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Allow the dynamic hostname for SSR
 process.env['NG_ALLOWED_HOSTS'] = '*.run.app,localhost,127.0.0.1';
@@ -26,13 +32,33 @@ if (!fs.existsSync(testUploadsDir)) {
   fs.mkdirSync(testUploadsDir, { recursive: true });
 }
 
-function saveTestVoiceSample(base64String: string) {
-  if (base64String) {
+function saveAndConvertAudio(base64String: string, outputPath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    
+    const tempWebm = outputPath.replace('.wav', '.webm');
+    
+    // Step 1: Save raw WEBM
     const base64Data = base64String.replace(/^data:audio\/\w+;base64,/, "");
-    const filePath = join(testUploadsDir, 'test.wav');
-    fs.writeFileSync(filePath, base64Data, 'base64');
-  }
+    fs.writeFileSync(tempWebm, base64Data, 'base64');
+    
+    // Step 2: Convert to WAV (16kHz mono)
+    ffmpeg(tempWebm)
+    .audioFrequency(16000)
+    .audioChannels(1)
+    .toFormat('wav')
+    .on('end', () => {
+      fs.unlinkSync(tempWebm); // delete temp file
+      resolve();
+    })
+    .on('error', (err) => {
+      console.error("FFMPEG ERROR:", err);
+      reject(err);
+    })
+    .save(outputPath);
+  });
 }
+
+
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -55,9 +81,9 @@ const generateToken = () => crypto.randomBytes(32).toString('hex');
 const authenticateToken = (req: any, res: any, next: any) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-
+  
   if (!token) return res.status(401).json({ message: 'Unauthorized' });
-
+  
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) return res.status(403).json({ message: 'Forbidden' });
     req.user = user;
@@ -68,7 +94,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
 // --- API Routes ---
 
 // Auth Routes
-app.post('/api/auth/signup', (req, res) => {
+app.post('/api/auth/signup',async (req, res) => {
   const { name, email, password, gender, dob, voiceSamples, photo } = req.body;
   
   if (usersDB.find(u => u.email === email)) {
@@ -80,14 +106,14 @@ app.post('/api/auth/signup', (req, res) => {
   
   // Save base64 voice samples to file system
   if (Array.isArray(voiceSamples)) {
-    voiceSamples.forEach((base64String, index) => {
+    for (let index = 0; index < voiceSamples.length; index++) {
+      const base64String = voiceSamples[index];
+      
       if (base64String) {
-        // Remove the data URL prefix (e.g., "data:audio/webm;base64,")
-        const base64Data = base64String.replace(/^data:audio\/\w+;base64,/, "");
         const filePath = join(uploadsDir, `${userId}_${index + 1}.wav`);
-        fs.writeFileSync(filePath, base64Data, 'base64');
+        await saveAndConvertAudio(base64String, filePath);
       }
-    });
+    }
   }
   
   const user = {
@@ -117,7 +143,7 @@ app.post('/api/auth/login', (req, res) => {
     res.json({ token, user: { id: 'admin', name: 'Administrator', role: 'admin' } });
     return;
   }
-
+  
   // Check for test login
   if (identifier === 'test' && password === 'test@123') {
     const token = jwt.sign({ id: 'test', role: 'test' }, JWT_SECRET);
@@ -189,7 +215,7 @@ app.put('/api/user/profile', (req, res) => {
   res.json({ id: user.id, name: user.name, email: user.email, photo: user.photo });
 });
 
-app.put('/api/user/voice', (req, res) => {
+app.put('/api/user/voice', async(req, res) => {
   const { userId, voiceSamples } = req.body;
   const user = usersDB.find(u => u.id === userId);
   if (!user) {
@@ -199,14 +225,14 @@ app.put('/api/user/voice', (req, res) => {
   
   // Save base64 voice samples to file system, overwriting existing ones
   if (Array.isArray(voiceSamples)) {
-    voiceSamples.forEach((base64String, index) => {
+    for (let index = 0; index < voiceSamples.length; index++) {
+      const base64String = voiceSamples[index];
+      
       if (base64String) {
-        // Remove the data URL prefix (e.g., "data:audio/webm;base64,")
-        const base64Data = base64String.replace(/^data:audio\/\w+;base64,/, "");
         const filePath = join(uploadsDir, `${userId}_${index + 1}.wav`);
-        fs.writeFileSync(filePath, base64Data, 'base64');
+        await saveAndConvertAudio(base64String, filePath);
       }
-    });
+    }
     user.voiceSamples = voiceSamples;
   }
   
@@ -238,6 +264,7 @@ app.post('/api/developer/projects', (req, res) => {
     createdAt: new Date(),
     usersCount: 0,
     allowedUsers: []
+
   };
   
   projectsDB.push(project);
@@ -442,13 +469,18 @@ app.get('/api/verify/session/:sessionId', (req, res) => {
   res.json({ valid: true });
 });
 
-app.post('/api/verify/analyze', (req, res) => {
+app.post('/api/verify/analyze',async (req, res) => {
   const { sessionId, voiceSample } = req.body;
   const session = sessionsDB.get(sessionId);
   
-  if (voiceSample) {
-    saveTestVoiceSample(voiceSample);
-  }
+  const testFilePath = join(testUploadsDir, 'test.wav');
+
+  if (!voiceSample) {
+  return res.status(400).json({ message: "No voice sample provided" });
+}
+if (voiceSample) {
+  await saveAndConvertAudio(voiceSample, testFilePath);
+}
   
   if (!session || Date.now() > session.expiresAt) {
     res.status(400).json({ message: 'Invalid or expired session' });
@@ -459,16 +491,15 @@ app.post('/api/verify/analyze', (req, res) => {
   if (!project) {
     res.status(404).json({ message: 'Project not found' });
     return;
-  }
+  }  
 
-  const users = usersDB;
-  
   // recognition of voice threw the pythong file
   
-  const testFilePath = join(testUploadsDir, 'test.wav');
-  return exec(`python voice_engine.py ${testFilePath}`, (error, stdout, stderr) => {
+  //const testFilePath = join(testUploadsDir, 'test.wav');
+  return exec(`python "${join(process.cwd(),'voice_engine.py')}" "${testFilePath}" "${uploadsDir}"`,{ timeout: 10000 }, (error : any, stdout: string, stderr: string) => {
   if (error) {
-    console.error(error);
+    console.error("EXEC ERROR:", error);
+    console.error("STDERR:", stderr);
     res.status(500).json({ message: 'Voice processing failed' });
     return;
   }
@@ -480,8 +511,13 @@ app.post('/api/verify/analyze', (req, res) => {
     return;
   }
 
+  if (!output.includes("|")) {
+  return res.status(500).json({ message: "Invalid response from voice engine" });
+}
   const [userId, confidence] = output.split("|");
-
+  if (parseFloat(confidence) < 0.75) {
+  return res.status(401).json({ message: "Low confidence - voice not matched" });
+}
   const recognizedUser = usersDB.find(u => u.id === userId);
 
   if (!recognizedUser) {
@@ -496,7 +532,9 @@ app.post('/api/verify/analyze', (req, res) => {
     return;
   }
 
-  res.json({
+  sessionsDB.delete(sessionId);
+
+  return res.json({
     success: true,
     user: {
       uniqueId: recognizedUser.id,
@@ -509,7 +547,6 @@ app.post('/api/verify/analyze', (req, res) => {
     confidence: confidence
   });
 
-  sessionsDB.delete(sessionId);
 });
 });
 
@@ -560,40 +597,26 @@ app.delete('/api/admin/users/:id', authenticateToken, (req, res) => {
 });
 
 // Admin Voice Detect
-app.post('/api/admin/voice-detect', authenticateToken, (req, res) => {
+app.post('/api/admin/voice-detect', authenticateToken, async(req, res) => {
   if ((req as any).user.role !== 'admin') {
     res.status(403).json({ message: 'Forbidden' });
     return;
   }
   
   const { voiceSample } = req.body;
-  
+  const filePath = join(testUploadsDir, 'test.wav');
+
+  if (!voiceSample) {
+    return res.status(400).json({ message: "No voice sample provided" });
+  }
   if (voiceSample) {
-    saveTestVoiceSample(voiceSample);
+    await saveAndConvertAudio(voiceSample, filePath);
   }
-  
-  const users = usersDB;
-  
-  // 20% chance to not recognize
-  if (users.length === 0 || Math.random() < 0.2) {
-    res.json({ status: 'not_registered', message: 'User not registered', data: null });
-    return;
-  }
-
-  // Pick a random user to simulate recognition
-  const recognizedUser = users[Math.floor(Math.random() * users.length)];
-
-  const { password, ...userInfo } = recognizedUser;
-
-  res.json({
-    status: 'success',
-    message: `User recognised as: ${recognizedUser.name}`,
-    data: userInfo
-  });
+  return res.json({ message: "Voice sample saved successfully" });
 });
 
 // Test Voice Detect
-app.post('/api/test/voice-detect', authenticateToken, (req, res) => {
+app.post('/api/test/voice-detect', authenticateToken, async (req, res) => {
   if ((req as any).user.role !== 'test') {
     res.status(403).json({ message: 'Forbidden' });
     return;
@@ -601,28 +624,14 @@ app.post('/api/test/voice-detect', authenticateToken, (req, res) => {
   
   const { voiceSample } = req.body;
   
-  if (voiceSample) {
-    saveTestVoiceSample(voiceSample);
-  }
-  
-  const users = usersDB;
-  
-  // 20% chance to not recognize
-  if (users.length === 0 || Math.random() < 0.2) {
-    res.json({ status: 'not_registered', message: 'User not registered', data: null });
-    return;
-  }
-
-  // Pick a random user to simulate recognition
-  const recognizedUser = users[Math.floor(Math.random() * users.length)];
-
-  const { password, ...userInfo } = recognizedUser;
-
-  res.json({
-    status: 'success',
-    message: `User recognised as: ${recognizedUser.name}`,
-    data: userInfo
-  });
+ const filePath = join(testUploadsDir, 'test.wav');
+if (!voiceSample) {
+  return res.status(400).json({ message: "No voice sample provided" });
+}
+if (voiceSample) {
+  await saveAndConvertAudio(voiceSample, filePath);
+}
+  return res.json({ message: "Voice sample saved successfully" });
 });
 
 /**

@@ -6,27 +6,36 @@ import noisereduce as nr
 from resemblyzer import VoiceEncoder
 from scipy.spatial.distance import cosine
 
-print("file ran")
-
-UPLOADS_DIR = "uploads"
+# ----------------------------
+# INPUTS FROM SERVER
+# ----------------------------
 TEST_FILE = sys.argv[1]
+UPLOADS_DIR = sys.argv[2]
 
 encoder = VoiceEncoder()
 
 # ----------------------------
-# AUDIO PREPROCESSING
+# AUDIO PREPROCESSING (STRONG)
 # ----------------------------
 def preprocess_audio(path):
     wav, sr = librosa.load(path, sr=16000)
 
-    # Remove noise
+    # Trim silence (important first)
+    wav, _ = librosa.effects.trim(wav, top_db=20)
+
+    # Noise reduction
     wav = nr.reduce_noise(y=wav, sr=sr)
 
-    # Normalize volume
+    # Normalize
     wav = librosa.util.normalize(wav)
 
-    # Trim silence
-    wav, _ = librosa.effects.trim(wav)
+    # Ensure fixed length (pad or cut to 3 sec)
+    target_len = 16000 * 3  # 3 seconds
+
+    if len(wav) > target_len:
+        wav = wav[:target_len]
+    else:
+        wav = np.pad(wav, (0, target_len - len(wav)))
 
     return wav
 
@@ -38,58 +47,65 @@ def get_embedding(path):
     return encoder.embed_utterance(wav)
 
 # ----------------------------
-# BUILD DATABASE (NO AVERAGING)
+# BUILD DATABASE (AVERAGED)
 # ----------------------------
 def build_db():
     users = {}
 
     for file in os.listdir(UPLOADS_DIR):
         if file.endswith(".wav") and "_" in file:
-            user_id = file.split("_")[0]  # FIXED
+            user_id = "_".join(file.split("_")[:2])  # VRU_xxxx
+
             emb = get_embedding(os.path.join(UPLOADS_DIR, file))
 
             users.setdefault(user_id, []).append(emb)
 
+    # Average embeddings per user (VERY IMPORTANT)
+    for user in users:
+        users[user] = np.mean(users[user], axis=0)
+
     return users
 
 # ----------------------------
-# MATCHING LOGIC
+# MATCHING LOGIC (IMPROVED)
 # ----------------------------
 def recognize():
     db = build_db()
+
+    if len(db) == 0:
+        print("None|0")
+        return
+
     test_emb = get_embedding(TEST_FILE)
 
     scores = {}
 
-    for user, embeddings in db.items():
-        sims = []
+    for user, emb in db.items():
+        sim = 1 - cosine(test_emb, emb)
+        scores[user] = sim
 
-        for emb in embeddings:
-            sim = 1 - cosine(test_emb, emb)
-            sims.append(sim)
-
-        # Take BEST match instead of average
-        scores[user] = max(sims)
-
-    # Sort users by similarity
+    # Sort users
     sorted_users = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
     best_user, best_score = sorted_users[0]
 
-    # Margin check
+    # Confidence check
+    if best_score < 0.72:
+        print("None|0")
+        return
+
+    # Margin check (avoid confusion)
     if len(sorted_users) > 1:
         second_score = sorted_users[1][1]
-    else:
-        second_score = 0
+        if (best_score - second_score) < 0.05:
+            print("None|0")
+            return
 
-    margin = best_score - second_score
+    print(f"{best_user}|{round(best_score, 3)}")
 
-    # STRONG DECISION LOGIC
-    if best_score > 0.80 and margin > 0.05:
-        print(f"{best_user}|{best_score}")
-    else:
-        print("None|0")
 
-recognize()
-
-print("file stopped")
+# ----------------------------
+# RUN
+# ----------------------------
+if __name__ == "__main__":
+    recognize()
