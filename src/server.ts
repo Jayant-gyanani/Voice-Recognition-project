@@ -10,9 +10,12 @@ import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import fs from 'node:fs';
 import { exec } from 'child_process';
-import ffmpeg from 'fluent-ffmpeg';
+//import ffmpeg from 'fluent-ffmpeg';
 import { fileURLToPath } from 'url';
 import path from 'path';
+
+// ✅ Set path manually (prevents internal __dirname crash)
+//ffmpeg.setFfmpegPath("C:\\Program Files\\ffmpeg\\ffmpeg.exe");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,7 +23,7 @@ const __dirname = path.dirname(__filename);
 // Allow the dynamic hostname for SSR
 process.env['NG_ALLOWED_HOSTS'] = '*.run.app,localhost,127.0.0.1';
 
-const browserDistFolder = join(import.meta.dirname, '../browser');
+const browserDistFolder = join(__dirname, '../browser');
 
 const uploadsDir = join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -34,27 +37,23 @@ if (!fs.existsSync(testUploadsDir)) {
 
 function saveAndConvertAudio(base64String: string, outputPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    
+
     const tempWebm = outputPath.replace('.wav', '.webm');
-    
-    // Step 1: Save raw WEBM
+
     const base64Data = base64String.replace(/^data:audio\/\w+;base64,/, "");
     fs.writeFileSync(tempWebm, base64Data, 'base64');
-    
-    // Step 2: Convert to WAV (16kHz mono)
-    ffmpeg(tempWebm)
-    .audioFrequency(16000)
-    .audioChannels(1)
-    .toFormat('wav')
-    .on('end', () => {
-      fs.unlinkSync(tempWebm); // delete temp file
+
+    const command = `"ffmpeg" -y -i "${tempWebm}" -ar 16000 -ac 1 "${outputPath}"`;
+
+    exec(command, (error) => {
+      if (error) {
+        console.error("FFMPEG ERROR:", error);
+        return reject(error);
+      }
+
+      fs.unlinkSync(tempWebm);
       resolve();
-    })
-    .on('error', (err) => {
-      console.error("FFMPEG ERROR:", err);
-      reject(err);
-    })
-    .save(outputPath);
+    });
   });
 }
 
@@ -496,7 +495,7 @@ if (voiceSample) {
   // recognition of voice threw the pythong file
   
   //const testFilePath = join(testUploadsDir, 'test.wav');
-  return exec(`python "${join(process.cwd(),'voice_engine.py')}" "${testFilePath}" "${uploadsDir}"`,{ timeout: 10000 }, (error : any, stdout: string, stderr: string) => {
+  return exec(`python "${join(process.cwd(),'voice_engine.py')}" "${testFilePath}" "${uploadsDir}"`,{ timeout: 50000 }, (error : any, stdout: string, stderr: string) => {
   if (error) {
     console.error("EXEC ERROR:", error);
     console.error("STDERR:", stderr);
