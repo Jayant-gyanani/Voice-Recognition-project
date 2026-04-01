@@ -1,6 +1,6 @@
 ok guys yaha per roj thoda thoda kuch na kuc likhna h but yaha se kuch htana nhi
-pahle tumko github se fetch origin krna h than waha se pull karna h 
-uske baad yaha per tum kuch bhi likh do yah per 
+pahle tumko github se fetch origin krna h than waha se pull karna h
+uske baad yaha per tum kuch bhi likh do yah per
 fir yaha save karke github per push kar do
 
 ==================================================================================
@@ -19,3 +19,5 @@ again reepeting
 START WRITING FROM HERE
 ==================================================================================
 Jayant : sara kuch upload kar diya h run karne k liye cmd pr ==>{ npm run dev }<== likh lena ab bas voice recognition modal add karna h
+hello
+
