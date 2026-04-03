@@ -21,4 +21,5 @@ START WRITING FROM HERE
 Jayant : sara kuch upload kar diya h run karne k liye cmd pr ==>{ npm run dev }<== likh lena ab bas voice recognition modal add karna h
 hello
 
-komal : jldi se project complte kro or merko sikhao 
+komal : jldi se project complte kro or merko sikhao
+kanika : yrr project 10 se phle complete ho jae to shi h
