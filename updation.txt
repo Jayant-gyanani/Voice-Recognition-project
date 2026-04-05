@@ -19,7 +19,7 @@ again reepeting
 START WRITING FROM HERE
 ==================================================================================
 Jayant : sara kuch upload kar diya h run karne k liye cmd pr ==>{ npm run dev }<== likh lena ab bas voice recognition modal add karna h
-hello
-
+kanika: hello
+Jayant : naam daal ke baat karo apna apna
 komal : jldi se project complte kro or merko sikhao
 kanika : yrr project 10 se phle complete ho jae to shi h
