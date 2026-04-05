@@ -23,3 +23,29 @@ kanika: hello
 Jayant : naam daal ke baat karo apna apna
 komal : jldi se project complte kro or merko sikhao
 kanika : yrr project 10 se phle complete ho jae to shi h
+
+
+-----------------------------------------------------------------------------------------
+ANNOUNCMENT : kafi mahnat , samay or takleefo k baad finaly ye project 95% ban chuka h 
+modal bhi ban chuka h
+wo kaam bhi kar rha h 
+uski linking bhi ho gyi
+and now the only part remainig is key devloper console ki api ko set krna h to wo laa, chota sa h kal pura ho jayga 
+and now its time to understand evrything and just submit it 
+
+abhi agar tumko test krna h is modal ko to here is how you can do
+ -> run the project:
+    - cmd open karke npm run dev likho
+    -link aayga usko open karo
+-> account creation:
+    - front page par pahuch jaoge uspr sighn in karo or account bnao submitting your 3 voices
+    - tumko ak unique id mil jaygi 
+->testing:
+    -log out karo and dubara login karo with thease id and pass
+        ID - admin
+        pass - admin@123
+    -tumko list of all users mil jaygi usme top par tab hoga voice detection us section me jaoge
+    -submit your voice and see the results
+
+thats it
+--------------------------------------------------------------------------------------------
