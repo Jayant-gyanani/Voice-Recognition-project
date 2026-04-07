@@ -26,12 +26,12 @@ kanika : yrr project 10 se phle complete ho jae to shi h
 
 
 -----------------------------------------------------------------------------------------
-ANNOUNCMENT : kafi mahnat , samay or takleefo k baad finaly ye project 95% ban chuka h 
+ANNOUNCMENT : kafi mahnat , samay or takleefo k baad finaly ye project 95% ban chuka h
 modal bhi ban chuka h
-wo kaam bhi kar rha h 
+wo kaam bhi kar rha h
 uski linking bhi ho gyi
-and now the only part remainig is key devloper console ki api ko set krna h to wo laa, chota sa h kal pura ho jayga 
-and now its time to understand evrything and just submit it 
+and now the only part remainig is key devloper console ki api ko set krna h to wo laa, chota sa h kal pura ho jayga
+and now its time to understand evrything and just submit it
 
 abhi agar tumko test krna h is modal ko to here is how you can do
  -> run the project:
@@ -39,7 +39,7 @@ abhi agar tumko test krna h is modal ko to here is how you can do
     -link aayga usko open karo
 -> account creation:
     - front page par pahuch jaoge uspr sighn in karo or account bnao submitting your 3 voices
-    - tumko ak unique id mil jaygi 
+    - tumko ak unique id mil jaygi
 ->testing:
     -log out karo and dubara login karo with thease id and pass
         ID - admin
@@ -50,4 +50,5 @@ abhi agar tumko test krna h is modal ko to here is how you can do
 thats it
 --------------------------------------------------------------------------------------------
 
-komal: aaj hmne pathak sir ko project dhkiya or heasha ki trh unhone kmkya hi niakli 
+komal: aaj hmne pathak sir ko project dhkiya or heasha ki trh unhone kmkya hi niakli
+kanika: agli bar komal pathak sir ko project samjhaegi
