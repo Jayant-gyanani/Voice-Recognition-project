@@ -51,4 +51,24 @@ thats it
 --------------------------------------------------------------------------------------------
 
 komal: aaj hmne pathak sir ko project dhkiya or heasha ki trh unhone kmkya hi niakli
-kanika: agli bar komal pathak sir ko project samjhaegi
+kanika: agli bar komal pathak sir ko project samjhaegi 
+Jayant: ha kar de kalyaan 
+
+--------------------------------------------------------------------------------------------
+ANNOUNCMENT:api intigraion bhi ho chuka h use karne k liye simple steps neeche h 
+
+==========================================================================================================
+NOTE: is wale folder ke andar kuch bhi mat karo is poore folder ko kahi or coppy kar do ak new coppy bnao and sab kuch usme
+      karo KEEP THAT IN MIND
+==========================================================================================================
+
+step1:- pahle to ooper se cmd open karo "npm run dev" se project run karo or ak account bnao 
+step2:- devloper tab me jao or waha ak project bnao and api create karo
+step3:- usme andar jake unique id (user id)se users add kar do {khud ke account ki hi kar do}other wise har bar 
+        acces not granted aayga
+step4:- api ko coppy karke index.html me line number 246 k ass pass {const API_KEY = 'paste here';} is api key ko paste karo
+step5:- ak nya terminal open karo in the same tab or ye command dalo " npx serve . " iske bad port 3000 wale se new page
+        open ho jayga
+step6:-press the button varify your voice and see the output
+--------------------------------------------------------------------------------------------
+
