@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoiceAuth Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 800;
+      color: #4f46e5;
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .vraas-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      justify-content: center;
+    }
+    .vraas-btn:hover    { background: #4338ca; }
+    .vraas-btn:active   { transform: scale(0.98); }
+    .vraas-btn:disabled { background: #a5b4fc; cursor: not-allowed; }
+    .vraas-btn svg {
+      width: 20px; height: 20px;
+      fill: none; stroke: white; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #6b7280;
+      min-height: 20px;
+    }
+
+    .result-box {
+      display: none;
+      margin-top: 28px;
+      border-radius: 14px;
+      padding: 24px;
+      text-align: left;
+      border: 1.5px solid #e5e7eb;
+      background: #fafafa;
+    }
+    .result-box.success { border-color: #6ee7b7; background: #f0fdf4; }
+    .result-box.denied  { border-color: #fca5a5; background: #fff1f2; }
+    .result-box.fail    { border-color: #fcd34d; background: #fffbeb; }
+
+    .outcome-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+    .badge-green  { background: #d1fae5; color: #065f46; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+
+    .outcome-msg {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .outcome-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    /* Photo LEFT, details RIGHT */
+    .user-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .user-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid #6ee7b7;
+      flex-shrink: 0;
+      background: #e5e7eb;
+    }
+    .user-details { flex: 1; }
+    .user-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 10px;
+    }
+    .detail-row {
+      display: flex;
+      font-size: 13px;
+      margin-bottom: 5px;
+      gap: 6px;
+    }
+    .detail-label {
+      color: #9ca3af;
+      font-weight: 600;
+      min-width: 58px;
+      flex-shrink: 0;
+    }
+    .detail-value {
+      color: #1f2937;
+      word-break: break-all;
+    }
+
+    .confidence-line {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: right;
+    }
+
+    .try-again-btn {
+      margin-top: 18px;
+      width: 100%;
+      background: none;
+      border: 1.5px solid #d1d5db;
+      color: #374151;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    .try-again-btn:hover { background: #f3f4f6; }
+
+    .raw-toggle {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #9ca3af;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .raw-box {
+      display: none;
+      margin-top: 8px;
+      background: #1f2937;
+      color: #a3e635;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 14px;
+      border-radius: 8px;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo">VoiceAuth</div>
+    <div class="subtitle">Click the button below to verify identity using voice</div>
+
+    <button class="vraas-btn" id="mainBtn" onclick="startVoiceAuth()">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8"  y1="23" x2="16" y2="23"/>
+      </svg>
+      Sign in with Voice
+    </button>
+
+    <div class="status" id="status"></div>
+
+    <!-- Result panel -->
+    <div class="result-box" id="resultBox">
+      <span class="outcome-badge" id="outcomeBadge"></span>
+
+      <!-- fail / denied -->
+      <div id="msgBlock" style="display:none">
+        <div class="outcome-msg" id="outcomeMsg"></div>
+        <div class="outcome-sub" id="outcomeSub"></div>
+      </div>
+
+      <!-- success: photo left, details right -->
+      <div class="user-row" id="userBlock" style="display:none">
+        <img class="user-photo" id="userImage" src="" alt="Profile Photo">
+        <div class="user-details">
+          <div class="user-name" id="userName"></div>
+          <div class="detail-row"><span class="detail-label">ID</span>     <span class="detail-value" id="uid"></span></div>
+          <div class="detail-row"><span class="detail-label">Email</span>  <span class="detail-value" id="email"></span></div>
+          <div class="detail-row"><span class="detail-label">DOB</span>    <span class="detail-value" id="dob"></span></div>
+          <div class="detail-row"><span class="detail-label">Gender</span> <span class="detail-value" id="gender"></span></div>
+        </div>
+      </div>
+
+      <div class="confidence-line" id="confLine"></div>
+      <button class="try-again-btn" onclick="resetUI()">Try Again</button>
+    </div>
+
+    <div class="raw-toggle" id="rawToggle" style="display:none" onclick="toggleRaw()">Show raw API response</div>
+    <pre class="raw-box" id="rawBox"></pre>
+  </div>
+
+  <script>
+    // ── PASTE YOUR API KEY HERE ──────────────────────────────
+    const API_KEY        = 'VR_API_b0144fee';
+    const VRAAS_BASE_URL = 'http://localhost:4200';
+    // ────────────────────────────────────────────────────────
+
+    let popupWindow = null;
+
+    async function startVoiceAuth() {
+      const btn    = document.getElementById('mainBtn');
+      const status = document.getElementById('status');
+
+      btn.disabled = true;
+      resetUI(true);
+      status.textContent = 'Creating secure session…';
+
+      try {
+        const resp = await fetch(`${VRAAS_BASE_URL}/api/v1/session/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY }
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.message || `Server error ${resp.status}`);
+        }
+
+        const { verifyUrl } = await resp.json();
+        status.textContent = 'Opening voice verification popup…';
+
+        const popupW = 480, popupH = 640;
+        const left = Math.round(window.screenX + (window.outerWidth  - popupW) / 2);
+        const top  = Math.round(window.screenY + (window.outerHeight - popupH) / 2);
+
+        popupWindow = window.open(
+          `${VRAAS_BASE_URL}${verifyUrl}`,
+          'VoiceAuth',
+          `width=${popupW},height=${popupH},left=${left},top=${top},resizable=no,scrollbars=no`
+        );
+
+        if (!popupWindow) {
+          throw new Error('Popup was blocked. Please allow popups for this page and try again.');
+        }
+
+        status.textContent = 'Waiting for voice verification in the popup…';
+
+        // ✅ KEY FIX: Do NOT check event.origin.
+        // When index.html is opened as a local file (file://) its origin is "null",
+        // which never matches "http://localhost:4200" — so every message was silently
+        // dropped and nothing ever showed on the page.
+        // We stay safe by only reacting when event.data.type === 'VOICE_AUTH_RESULT'.
+        window.addEventListener('message', handleResult);
+
+        // Detect if the user manually closes the popup
+        let resultReceived = false;
+
+window.addEventListener('message', (event) => {
+  if (!event.data || event.data.type !== 'VOICE_AUTH_RESULT') return;
+
+  resultReceived = true;
+  handleResult(event);
+}, { once: true });
+
+const poll = setInterval(() => {
+  if (popupWindow && popupWindow.closed) {
+    clearInterval(poll);
+
+    btn.disabled = false;
+
+    if (!resultReceived) {
+      status.textContent = 'Popup closed before verification completed.';
+    } else {
+      status.textContent = '';
+    }
+  }
+}, 500);
+
+      } catch (err) {
+        btn.disabled = false;
+        status.textContent = '❌ ' + err.message;
+      }
+    }
+
+    function handleResult(event) {
+      console.log("✅ MESSAGE RECEIVED:", event.data);
+      if (!event.data || event.data.type !== 'VOICE_AUTH_RESULT') return;
+
+      window.removeEventListener('message', handleResult);
+      document.getElementById('mainBtn').disabled = false;
+      document.getElementById('status').textContent = '';
+
+      const result = event.data.result;
+
+      document.getElementById('rawToggle').style.display = 'block';
+      document.getElementById('rawBox').textContent = JSON.stringify(result, null, 2);
+
+      if (!result)                               { showFail();          return; }
+      if (result.outcome === 'access_granted')   { showSuccess(result); return; }
+      if (result.outcome === 'access_denied')    { showDenied();        return; }
+      showFail();
+    }
+
+    function showSuccess(result) {
+      const u = result.user || {};
+      setBox('success');
+      setBadge('✓ Access Granted', 'badge-green');
+
+      document.getElementById('msgBlock').style.display  = 'none';
+      document.getElementById('userBlock').style.display = 'flex';
+
+      document.getElementById('userImage').src          = u.image    || '';
+      document.getElementById('userName').textContent   = u.name     || '—';
+      document.getElementById('uid').textContent        = u.uniqueId || '—';
+      document.getElementById('email').textContent      = u.email    || '—';
+      document.getElementById('dob').textContent        = u.dob      || '—';
+      document.getElementById('gender').textContent     = u.gender   || '—';
+
+      if (result.confidence) {
+        document.getElementById('confLine').textContent =
+          'Confidence: ' + (parseFloat(result.confidence) * 100).toFixed(1) + '%';
+      }
+
+      console.log('VoiceAuth success — user data:', u);
+    }
+
+    function showDenied() {
+      setBox('denied');
+      setBadge('✗ Access Denied', 'badge-red');
+      document.getElementById('userBlock').style.display = 'none';
+      document.getElementById('msgBlock').style.display  = 'block';
+      document.getElementById('outcomeMsg').textContent  = 'You are not authorised.';
+      document.getElementById('outcomeSub').textContent  =
+        'Your voice was recognised but you do not have access to this project. Please contact the developer to request access.';
+      document.getElementById('confLine').textContent = '';
+    }
+
+    function showFail() {
+      setBox('fail');
+      setBadge('⚠ Not Recognised', 'badge-yellow');
+      document.getElementById('userBlock').style.display = 'none';
+      document.getElementById('msgBlock').style.display  = 'block';
+      document.getElementById('outcomeMsg').textContent  = 'Voice not recognised.';
+      document.getElementById('outcomeSub').textContent  =
+        'You don\'t have a VoiceAuth account yet. Please sign up at the VoiceAuth portal and record your voice samples to get started.';
+      document.getElementById('confLine').textContent = '';
+    }
+
+    function setBox(cls) {
+      const box = document.getElementById('resultBox');
+      box.className    = 'result-box ' + cls;
+      box.style.display = 'block';
+    }
+
+    function setBadge(text, cls) {
+      const b = document.getElementById('outcomeBadge');
+      b.textContent = text;
+      b.className   = 'outcome-badge ' + cls;
+    }
+
+    function resetUI(keepDisabled) {
+      document.getElementById('resultBox').style.display  = 'none';
+      document.getElementById('rawToggle').style.display  = 'none';
+      document.getElementById('rawBox').style.display     = 'none';
+      document.getElementById('rawBox').textContent       = '';
+      document.getElementById('status').textContent       = '';
+      document.getElementById('confLine').textContent     = '';
+      if (!keepDisabled) document.getElementById('mainBtn').disabled = false;
+    }
+
+    function toggleRaw() {
+      const box     = document.getElementById('rawBox');
+      const tog     = document.getElementById('rawToggle');
+      const showing = box.style.display === 'block';
+      box.style.display = showing ? 'none' : 'block';
+      tog.textContent   = showing ? 'Show raw API response' : 'Hide raw API response';
+    }
+  </script>
+</body>
+</html>

@@ -101,6 +101,15 @@ const angularApp = new AngularNodeAppEngine();
 
 app.use(express.json({ limit: '50mb' })); // Increase limit for audio base64
 
+// ✅ CORS — allow any external page (the developer's site) to call /api/v1/session/create
+app.use((req: any, res: any, next: any) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+  if (req.method === 'OPTIONS') { res.sendStatus(200); return; }
+  next();
+});
+
 const JWT_SECRET = process.env['JWT_SECRET'] || 'super-secret-key-for-dev';
 
 // --- In-Memory Databases ---
@@ -637,7 +646,8 @@ if (voiceSample) {
     user: {
       uniqueId: recognizedUser.id,
       name: recognizedUser.name,
-      DOB: recognizedUser.dob,
+      email: recognizedUser.email,   // ✅ added email
+      dob: recognizedUser.dob,
       image: recognizedUser.photo,
       gender: recognizedUser.gender
     },

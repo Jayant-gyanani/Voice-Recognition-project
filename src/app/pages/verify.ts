@@ -317,7 +317,9 @@ export class VerifyComponent implements OnInit, OnDestroy {
 
   closeWindow() {
     if (window.opener) {
+      console.log("Sending result:", this.verificationResult()); // debug
       window.opener.postMessage({ type: 'VOICE_AUTH_RESULT', result: this.verificationResult() }, '*');
+      setTimeout(() => {window.close();}, 300);
       window.close();
     } else {
       window.history.back();
