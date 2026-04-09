@@ -208,7 +208,8 @@ app.post('/api/auth/signup',async (req, res) => {
     testProject.usersCount = testProject.allowedUsers.length;
   }
   
-  const token = generateToken();
+  // ✅ FIX: use jwt.sign so the token contains the user ID — required by /api/user/apps
+  const token = jwt.sign({ id: user.id, role: 'user' }, JWT_SECRET);
   res.json({ token, user: { id: user.id, name: user.name, email: user.email, photo: user.photo } });
 });
 
@@ -275,7 +276,8 @@ app.post('/api/auth/login', (req, res) => {
     return;
   }
   
-  const token = generateToken();
+  // ✅ FIX: use jwt.sign so the token contains the user ID — required by /api/user/apps
+  const token = jwt.sign({ id: user.id, role: 'user' }, JWT_SECRET);
   res.json({ token, user: { id: user.id, name: user.name, email: user.email, photo: user.photo } });
 });
 
