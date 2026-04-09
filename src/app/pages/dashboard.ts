@@ -11,15 +11,15 @@ import { ThemeToggleComponent } from '../components/theme-toggle';
   standalone: true,
   imports: [RouterLink, MatIconModule, DatePipe, ReactiveFormsModule, ThemeToggleComponent],
   template: `
-    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
-      <header class="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10 transition-colors duration-300">
+    <div class="min-h-screen bg-sky-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
+      <header class="bg-white/80 dark:bg-zinc-900 border-b border-sky-100 dark:border-zinc-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10 backdrop-blur-sm transition-colors duration-300">
         <div class="flex items-center gap-2">
-          <mat-icon class="text-indigo-600 dark:text-purple-500">record_voice_over</mat-icon>
-          <span class="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">VoiceAuth</span>
+          <mat-icon class="text-sky-600 dark:text-purple-500">record_voice_over</mat-icon>
+          <span class="text-xl font-bold tracking-tight text-sky-700 dark:text-zinc-100">VoiceAuth</span>
         </div>
         <nav class="flex items-center gap-6">
           <app-theme-toggle></app-theme-toggle>
-          <a routerLink="/dashboard" class="text-sm font-medium text-indigo-600 dark:text-purple-400 border-b-2 border-indigo-600 dark:border-purple-500 pb-1">Dashboard</a>
+          <a routerLink="/dashboard" class="text-sm font-medium text-sky-600 dark:text-purple-400 border-b-2 border-sky-600 dark:border-purple-500 pb-1">Dashboard</a>
           <a routerLink="/developer" class="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">Developer</a>
           <button (click)="showNotifModal.set(true)" class="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition-colors relative">
             <mat-icon class="text-sm">notifications</mat-icon> Notifications
@@ -39,14 +39,14 @@ import { ThemeToggleComponent } from '../components/theme-toggle';
             <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Welcome back, {{ user()?.name }}</h1>
             <p class="text-zinc-600 dark:text-zinc-400">Manage your voice profile and connected applications.</p>
           </div>
-          <button (click)="openRequestModal()" class="bg-indigo-600 dark:bg-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-indigo-700 dark:hover:bg-purple-700 transition-colors flex items-center gap-2 shadow-sm">
+          <button (click)="openRequestModal()" class="bg-sky-600 dark:bg-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-sky-700 dark:hover:bg-purple-700 transition-colors flex items-center gap-2 shadow-sm">
             <mat-icon class="text-sm">link</mat-icon> Request Connection
           </button>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
           <div class="md:col-span-1">
-            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 sticky top-24 transition-colors duration-300">
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-sky-100 dark:border-zinc-800 shadow-sm p-6 sticky top-24 transition-colors duration-300">
               <div class="flex justify-center mb-6">
                 @if (user()?.photo) {
                   <img [src]="user()?.photo" alt="User Photo" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-50 dark:border-purple-900/30">
@@ -84,7 +84,7 @@ import { ThemeToggleComponent } from '../components/theme-toggle';
           </div>
           
           <div class="md:col-span-2 space-y-8">
-            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-8 transition-colors duration-300">
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-sky-100 dark:border-zinc-800 shadow-sm p-8 transition-colors duration-300">
               <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                   <mat-icon class="text-indigo-600 dark:text-purple-500">apps</mat-icon> Connected Applications
@@ -119,14 +119,14 @@ import { ThemeToggleComponent } from '../components/theme-toggle';
               }
             </div>
             
-            <div class="bg-indigo-600 dark:bg-purple-700 rounded-2xl shadow-sm p-8 text-white relative overflow-hidden transition-colors duration-300">
+            <div class="bg-sky-600 dark:bg-purple-700 rounded-2xl shadow-sm p-8 text-white relative overflow-hidden transition-colors duration-300">
               <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                 <mat-icon style="font-size: 200px; width: 200px; height: 200px;">code</mat-icon>
               </div>
               <div class="relative z-10">
                 <h3 class="text-2xl font-bold mb-2">Are you a developer?</h3>
-                <p class="text-indigo-100 dark:text-purple-100 mb-6 max-w-md">Integrate VoiceAuth into your own applications. Generate API keys, manage projects, and view analytics.</p>
-                <a routerLink="/developer" class="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 text-indigo-600 dark:text-purple-400 px-6 py-3 rounded-xl font-medium hover:bg-indigo-50 dark:hover:bg-zinc-800 transition-colors">
+                <p class="text-sky-100 dark:text-purple-100 mb-6 max-w-md">Integrate VoiceAuth into your own applications. Generate API keys, manage projects, and view analytics.</p>
+                <a routerLink="/developer" class="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 text-sky-600 dark:text-purple-400 px-6 py-3 rounded-xl font-medium hover:bg-sky-50 dark:hover:bg-zinc-800 transition-colors">
                   Go to Developer Portal <mat-icon>arrow_forward</mat-icon>
                 </a>
               </div>

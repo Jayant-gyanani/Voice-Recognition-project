@@ -280,16 +280,34 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // User Dashboard Routes
-app.get('/api/user/apps', (req, res) => {
-  // Mock auth check
+app.get('/api/user/apps', (req: any, res: any) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     res.status(401).json({ message: 'Unauthorized' });
     return;
   }
-  
-  // For demo, just return all connected apps (in reality, filter by user)
-  res.json(connectedAppsDB);
+
+  // ✅ FIX: decode the JWT to get the real user ID, then return every
+  // project that has this user in its allowedUsers list.
+  const token = authHeader.split(' ')[1];
+  let userId: string;
+  try {
+    const decoded: any = jwt.verify(token, JWT_SECRET);
+    userId = decoded.id;
+  } catch {
+    res.status(403).json({ message: 'Invalid token' });
+    return;
+  }
+
+  const connectedProjects = projectsDB
+    .filter((p: any) => Array.isArray(p.allowedUsers) && p.allowedUsers.includes(userId))
+    .map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      connectedAt: p.createdAt || new Date().toISOString()
+    }));
+
+  res.json(connectedProjects);
 });
 
 app.put('/api/user/profile', (req, res) => {
