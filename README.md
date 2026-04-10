@@ -1,7 +1,8 @@
 <div align="center">
 
 <img src="https://img.shields.io/badge/VoiceAuth-VRaaS-4f46e5?style=for-the-badge&logo=googleassistant&logoColor=white" alt="VoiceAuth"/>
-<img src="logo.png" alt="lords logo">
+<img src="public/logo.png" alt="lords">
+
 # 🎙️ VoiceAuth
 
 ### Voice Recognition as a Service
