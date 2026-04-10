@@ -409,7 +409,7 @@ It keeps the voice recording UI on the VoiceAuth domain, which means the develop
 
 ## 📄 License
 
-This project is made by — JAYANT GYANANI , KANIKA SHARMA , KOMAL KUMARI with a tradmark of <b>TM</b>J2K.
+This project is made by — JAYANT GYANANI , KANIKA SHARMA , KOMAL KUMARI with a tradmark of <b>TM</b> J2K.
 
 ---
 
