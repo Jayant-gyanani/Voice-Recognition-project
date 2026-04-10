@@ -193,7 +193,7 @@ The app will be available at **[http://localhost:4200](http://localhost:4200)**
 
 ## 👤 Accounts & Roles
 
-VoiceAuth has four distinct account types built in:
+VoiceAuth has two distinct account types built in:
 
 ### 🟢 Normal User
 - Sign up at `/signup`
@@ -208,21 +208,6 @@ VoiceAuth has four distinct account types built in:
 - Add/remove registered users from the project's allowed list
 - Use the API Key in external websites to enable voice login
 
-### 🔴 Admin
-| Field | Value |
-|---|---|
-| Username | `admin` |
-| Password | `admin@123` |
-| Access | `/admin` — view all users, delete accounts, run live voice detection |
-
-### 🟡 Test Account
-| Field | Value |
-|---|---|
-| Username | `test` |
-| Password | `test@123` |
-| Access | `/test-dashboard` — record voice and see raw API JSON response |
-
----
 
 ## 🔌 Developer Integration Guide
 
