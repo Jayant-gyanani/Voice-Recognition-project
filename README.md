@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/VoiceAuth-VRaaS-4f46e5?style=for-the-badge&logo=googleassistant&logoColor=white" alt="VoiceAuth"/>
-<br>
 <img src="public/logo.png" alt="lords" hight="100px" width="120px">
+<br>
+<img src="https://img.shields.io/badge/VoiceAuth-VRaaS-4f46e5?style=for-the-badge&logo=googleassistant&logoColor=white" alt="VoiceAuth"/>
 
 # 🎙️ VoiceAuth
 
