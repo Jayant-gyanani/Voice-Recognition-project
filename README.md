@@ -415,6 +415,6 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 Built with ❤️ using Angular, Node.js & Python
 
-**[⭐ Star this repo if you found it useful!](https://github.com/your-username/voiceauth)**
+**[⭐ Star this repo if you found it useful!](https://https://github.com/Jayant-gyanani/Voice-Recognition-project)**
 
 </div>
