@@ -1,7 +1,7 @@
 <div align="center">
 
 <img src="https://img.shields.io/badge/VoiceAuth-VRaaS-4f46e5?style=for-the-badge&logo=googleassistant&logoColor=white" alt="VoiceAuth"/>
-
+<img src="logo.png" alt="lords logo">
 # 🎙️ VoiceAuth
 
 ### Voice Recognition as a Service
@@ -407,7 +407,7 @@ It keeps the voice recording UI on the VoiceAuth domain, which means the develop
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is made by — JAYANT GYANANI , KANIKA SHARMA , KOMAL KUMARI.
 
 ---
 
