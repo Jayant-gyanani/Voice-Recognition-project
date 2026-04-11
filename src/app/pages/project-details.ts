@@ -100,6 +100,11 @@ import { ThemeToggleComponent } from '../components/theme-toggle';
                     @if (addingUser()) { <mat-icon class="animate-spin h-5 w-5">autorenew</mat-icon> }
                     <mat-icon>person_add</mat-icon> Add User
                   </button>
+                  <!-- Bulk Import button — triggers hidden file input, no backend interaction -->
+                  <button type="button" (click)="triggerCsvInput()" class="bg-emerald-600 dark:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-emerald-700 dark:hover:bg-emerald-600 transition-colors flex items-center gap-2 whitespace-nowrap">
+                    <mat-icon>upload_file</mat-icon> Bulk Import
+                  </button>
+                  <input #csvInput type="file" accept=".csv" (change)="onCsvSelected($event)" class="hidden">
                 </form>
 
                 <div class="mb-8 relative">
@@ -214,6 +219,72 @@ import { ThemeToggleComponent } from '../components/theme-toggle';
           </div>
         </div>
       }
+      <!-- ══ Bulk Import Preview Modal (read-only, no backend) ══ -->
+      @if (showBulkModal()) {
+        <div class="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" (click)="closeBulkModal()">
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
+
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between flex-shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center">
+                  <mat-icon class="text-emerald-600 dark:text-emerald-400">group</mat-icon>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-zinc-900 dark:text-white">Bulk Import Preview</h3>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ csvUsers().length }} user{{ csvUsers().length === 1 ? '' : 's' }} found in CSV — preview only, nothing is saved</p>
+                </div>
+              </div>
+              <button (click)="closeBulkModal()" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <!-- Column headers -->
+            @if (csvHeaders().length > 0) {
+              <div class="px-6 py-3 bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-100 dark:border-zinc-800 flex-shrink-0 overflow-x-auto">
+                <div class="flex gap-0 min-w-max">
+                  <div class="w-8 text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">#</div>
+                  @for (h of csvHeaders(); track h) {
+                    <div class="min-w-36 max-w-52 px-3 text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider truncate">{{ h }}</div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Rows -->
+            <div class="overflow-y-auto flex-1">
+              @if (csvUsers().length === 0) {
+                <div class="text-center py-16">
+                  <mat-icon class="text-zinc-300 dark:text-zinc-700 text-5xl mb-3">sentiment_dissatisfied</mat-icon>
+                  <p class="text-zinc-500 dark:text-zinc-400 font-medium">No data rows found in this CSV file.</p>
+                  <p class="text-sm text-zinc-400 dark:text-zinc-500 mt-1">Make sure the file has a header row and at least one data row.</p>
+                </div>
+              } @else {
+                @for (row of csvUsers(); track $index) {
+                  <div class="flex gap-0 px-6 py-3 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors min-w-max" [class.bg-white]="$index % 2 === 0" [class.dark:bg-zinc-900]="$index % 2 === 0">
+                    <div class="w-8 text-xs text-zinc-400 dark:text-zinc-600 font-mono pt-0.5 flex-shrink-0">{{ $index + 1 }}</div>
+                    @for (h of csvHeaders(); track h) {
+                      <div class="min-w-36 max-w-52 px-3 text-sm text-zinc-800 dark:text-zinc-200 truncate" [title]="row[h] || ''">
+                        {{ row[h] || '—' }}
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between flex-shrink-0 bg-zinc-50 dark:bg-zinc-800/40">
+              <span class="text-xs text-zinc-400 dark:text-zinc-500 italic">This is a read-only preview. No data has been saved or imported.</span>
+              <button (click)="closeBulkModal()" class="px-5 py-2 bg-zinc-900 dark:bg-zinc-700 text-white rounded-xl font-medium hover:bg-zinc-800 dark:hover:bg-zinc-600 transition-colors text-sm">
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      }
     </div>
   `
 })
@@ -247,6 +318,11 @@ export class ProjectDetailsComponent implements OnInit {
   addingUser = signal(false);
   addError = signal('');
   addSuccess = signal('');
+
+  // Bulk Import
+  showBulkModal = signal(false);
+  csvHeaders = signal<string[]>([]);
+  csvUsers = signal<Record<string, string>[]>([]);
 
   // Notifications
   showNotifModal = signal(false);
@@ -386,6 +462,71 @@ export class ProjectDetailsComponent implements OnInit {
         alert('Failed to respond to request.');
       }
     });
+  }
+
+  // --- Bulk Import Methods (UI-only preview, no backend) ---
+  triggerCsvInput() {
+    // Find the hidden file input and click it programmatically
+    const input = document.querySelector('input[type="file"][accept=".csv"]') as HTMLInputElement;
+    if (input) input.click();
+  }
+
+  onCsvSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = (e.target?.result as string) || '';
+      this.parseCsv(text);
+      this.showBulkModal.set(true);
+      // Reset input so the same file can be re-selected if needed
+      (event.target as HTMLInputElement).value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  parseCsv(text: string) {
+    // Handle both CRLF and LF line endings
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim() !== '');
+    if (lines.length < 2) {
+      this.csvHeaders.set([]);
+      this.csvUsers.set([]);
+      return;
+    }
+
+    const parseRow = (line: string): string[] => {
+      const result: string[] = [];
+      let cur = '', inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
+          result.push(cur.trim()); cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      result.push(cur.trim());
+      return result;
+    };
+
+    const headers = parseRow(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
+    this.csvHeaders.set(headers);
+
+    const rows = lines.slice(1).map(line => {
+      const values = parseRow(line).map(v => v.replace(/^"|"$/g, '').trim());
+      const row: Record<string, string> = {};
+      headers.forEach((h, i) => { row[h] = values[i] ?? ''; });
+      return row;
+    });
+    this.csvUsers.set(rows);
+  }
+
+  closeBulkModal() {
+    this.showBulkModal.set(false);
   }
 
   logout() {
