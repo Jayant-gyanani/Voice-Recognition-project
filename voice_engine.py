@@ -5,7 +5,7 @@ import librosa
 import noisereduce as nr
 from resemblyzer import VoiceEncoder
 from scipy.spatial.distance import cosine
- 
+
 # ----------------------------
 # INPUTS
 # ----------------------------
